@@ -5,20 +5,16 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy and install requirements
+ENV GIT_PYTHON_REFRESH=quiet
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code
 COPY . .
 
-# Download Kaggle dataset and train the model at build-time.
-# This serializes models/sentiment_pipeline.joblib inside the image.
-RUN python src/train.py
-
-# Expose port
 EXPOSE 8000
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
